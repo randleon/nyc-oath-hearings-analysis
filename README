@@ -1,0 +1,62 @@
+# NYC OATH Violations Analysis
+
+This project explores **NYC OATH (Office of Administrative Trials and Hearings) violation data** from [NYC Open Data](https://data.cityofnewyork.us).  
+The dataset contains tens of thousands of violation case records (50k+ sample pulled), including issuing agency, hearing date, decision outcome, and penalty amounts.
+
+## Project Workflow
+
+1. **Data Acquisition**  
+   - Pulled 50,000 violation records from NYC Open Data using **Python (`requests`)** and **PowerShell**.  
+   - Loaded data into **PostgreSQL 15** for structured querying.  
+
+2. **Data Cleaning & Modeling**  
+   - Standardized agency names (e.g. `TAXI_TLC` → `TLC`, `DOHMH - VPHS` → `DOHMH`).  
+   - Normalized decision outcomes (`DISMISSED`, `DEFAULT`, `SUSTAINED`, etc.).  
+   - Created a clean analysis-ready view (`oath_clean`) with derived fields such as `outstanding` = `amount_due - amount_paid`.
+
+3. **Exploratory Data Analysis (EDA)**  
+   SQL queries examined:  
+   - Row counts, min/max hearing dates, null coverage, and duplicate checks.  
+   - Collections snapshot: total penalties vs. payments, collection rate %.  
+   - Decision distribution (Dismissed vs. Sustained vs. Default).  
+   - Top issuing agencies by case volume and by outstanding balance.  
+   - Monthly trends of penalties, payments, and collection rates.  
+   - Distributions of penalties and outstanding balances.
+
+4. **Exports**  
+   - Key outputs exported to CSV (`decision_mix.csv`, `monthly_collections.csv`, etc.) for review without needing PostgreSQL.  
+   - Data also explored in **Excel** for visualization (charts, trends).
+
+## Repository Contents
+nyc-oath-analysis/
+│
+├── oath_analysis.sql # Main SQL script with all analysis steps
+├── oath_clean_sample.csv # Sample of cleaned data (100 rows)
+├── decision_mix.csv # Distribution of decisions
+├── top_outstanding_agencies.csv # Agencies with highest outstanding balances
+├── monthly_collections.csv # Monthly penalties, payments, and collection rates
+├── oath_load_chunked.py # Python script used to fetch and load data
+└── README.md # Project documentation
+
+
+## Tools & Technologies
+
+- **Python 3.13** (requests, psycopg2)  
+- **PowerShell** (for running scripts and bulk inserts)  
+- **PostgreSQL 15** (data storage, SQL analysis)  
+- **Excel** (visualizations and charts)  
+
+## Key Insights
+
+- **Agency Distribution:** A small set of agencies (TLC, DOHMH, Port Authority) account for most cases.  
+- **Outstanding Balances:** Outstanding fines are concentrated in a few agencies, showing a Pareto/80–20 effect.  
+- **Trends:** Payment rates vary significantly by year and agency.
+
+## How to Reproduce
+
+1. Clone/download this repository.  
+2. Set up PostgreSQL 15 and create a database `nycdata`.  
+3. Run the SQL script:  
+   ```bash
+   psql -U postgres -d nycdata -f oath_analysis.sql
+
